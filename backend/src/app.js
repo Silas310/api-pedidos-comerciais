@@ -1,6 +1,6 @@
 import express from 'express';
-import estabelecimentoRotas from './modules/estabelecimentos/estabelecimentos.routes'
-import produtoRotas from './modules/produtos/produtos.routes'
+import estabelecimentoRotas from './modules/estabelecimentos/estabelecimentos.routes.js'
+import produtoRotas from './modules/produtos/produtos.routes.js'
 
 
 const app = express();
