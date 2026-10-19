@@ -1,5 +1,17 @@
 # API de Pedidos Comerciais — Plano de Projeto e Trilha de Estudos
 
+## 0. Sumário 
+- [API de Pedidos Comerciais — Plano de Projeto e Trilha de Estudos](#api-de-pedidos-comerciais--plano-de-projeto-e-trilha-de-estudos)
+  - [0. Sumário](#0-sumário)
+  - [1. Visão geral](#1-visão-geral)
+    - [Como o projeto começa](#como-o-projeto-começa)
+    - [Como evolui](#como-evolui)
+    - [Decisões de design resolvidas para o MVP](#decisões-de-design-resolvidas-para-o-mvp)
+  - [2. Stack recomendada](#2-stack-recomendada)
+  - [3. Mapa de dependências entre conceitos](#3-mapa-de-dependências-entre-conceitos)
+  - [4. Escopo: MVP × extensões futuras](#4-escopo-mvp--extensões-futuras)
+  - [5. Estrutura inicial de diretórios](#5-estrutura-inicial-de-diretórios)
+
 Plano de projeto, trilha de estudos e guia de evolução técnica para construir, do zero, uma API de pedidos comerciais (estabelecimentos pedindo produtos a um distribuidor) como projeto de portfólio para vagas backend júnior.
 
 ## 1. Visão geral
