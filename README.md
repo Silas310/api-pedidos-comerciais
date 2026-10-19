@@ -1,1 +1,2 @@
-# api-pedidos-comerciais
+# API de pedidos comerciais
+Sistema de API para gerir pedidos comerciais. Permite consulta, criação, atualização e exclusão de pedidos. Ele gerencia estoque, clientes e produtos associados aos pedidos garantindo que todas as operações sejam realizadas de forma eficiente e segura.
