@@ -15,7 +15,7 @@ router.post('/', criarEstabelecimento)
 
 
 // UPDATE
-router.put('/:id', reatrribuirEstabelecimento)
+router.put('/:id', reatribuirEstabelecimento)
 
 router.patch('/:id', atualizarEstabelecimento)
 
