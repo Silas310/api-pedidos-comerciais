@@ -1,37 +1,27 @@
 import { Router } from 'express'
+import { listarEstabelecimentos, buscarEstabelecimento, criarEstabelecimento, reatribuirEstabelecimento, atualizarEstabelecimento, apagarEstabelecimento } from './estabelecimentos.controller.js'
 
 const router = Router()
 
 
 // READ
-router.get("/", (req, res) => { // lista 
-  console.log('listar produtos')
-})
+router.get("/", listarEstabelecimentos)
 
-router.get('/:id', (req, res) => { // busca um
-
-})
+router.get('/:id', buscarEstabelecimento)
 
 
 // CREATE
-router.post('/:id', (req, res) => {
-
-})
+router.post('/', criarEstabelecimento)
 
 
 // UPDATE
-router.put('/:id', (req, res) => { // atualiza tudo
+router.put('/:id', reatrribuirEstabelecimento)
 
-})
-
-router.patch('/:id', (req, res) => { // atualiza parte
-
-})
+router.patch('/:id', atualizarEstabelecimento)
 
 
 // DELETE
-router.delete('/:id', (req, res) => {
+router.delete('/:id', apagarEstabelecimento)
 
-})
 
 export default router
