@@ -45,3 +45,6 @@ const Estabelecimento = db.define('Estabelecimento', {
   createdAt: 'criado_em',
   updatedAt: false
 })
+
+
+export default Estabelecimento
