@@ -43,9 +43,16 @@ async function buscarPedido(req, res, next) {
 
 async function criarPedido(req, res, next) {
   try {
-    return res.status(501).json({
-      erro: 'Criação de pedidos ainda não implementada.'
-    });
+    const { estabelecimento_id, cliente_id, itens } = req.body;
+
+    if (!estabelecimento_id || !cliente_id || !itens || !Array.isArray(itens) || itens.length === 0) {
+      return res.status(400).json({
+        erro: 'Dados do pedido inválidos.'
+      });
+    }
+    /* criacao de novoPedido sera feita com regras de negocio, 
+    como calculo de preco total, validacao de estoque, etc.*/
+
   } catch (erro) {
     next(erro);
   }

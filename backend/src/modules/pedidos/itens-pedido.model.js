@@ -33,5 +33,5 @@ const ItensPedido = db.define("ItensPedido", {
   },
 }, {
   tableName: "itens_pedido",
-  timeStamps: false,
+  timestamps: false,
 });
