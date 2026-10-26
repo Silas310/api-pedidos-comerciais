@@ -13,10 +13,10 @@ async function criarPedido(pedidoData) {
   // Formato de pedidoData:
   /*
   {
-    "estabelecimentoId": 1,
+    "estabelecimento_id": "uuid",
     "itens": [
       {
-        "produtoId": 1,
+        "produto_id": "uuid",
         "quantidade": 2
       }
     ]
@@ -35,7 +35,7 @@ async function criarPedido(pedidoData) {
   // 1. Validar os dados recebidos
   if (
     !pedidoData ||
-    !pedidoData.estabelecimentoId ||
+    !pedidoData.estabelecimento_id ||
     !Array.isArray(pedidoData.itens) ||
     pedidoData.itens.length === 0
   ) {
@@ -49,19 +49,19 @@ async function criarPedido(pedidoData) {
     // Valida formato dos itens do pedido
     if (
       !item ||
-      !item.produtoId ||
+      !item.produto_id ||
       !Number.isInteger(item.quantidade) ||
       item.quantidade <= 0
     ) {
       throw new Error("Produto ou quantidade inválidos");
     }
 
-    if (itensAgrupados.has(item.produtoId)) {
-      const itemExistente = itensAgrupados.get(item.produtoId);
+    if (itensAgrupados.has(item.produto_id)) {
+      const itemExistente = itensAgrupados.get(item.produto_id);
       itemExistente.quantidade += item.quantidade;
     } else {
-      itensAgrupados.set(item.produtoId, {
-        produtoId: item.produtoId,
+      itensAgrupados.set(item.produto_id, {
+        produto_id: item.produto_id,
         quantidade: item.quantidade,
       });
     }
@@ -76,7 +76,7 @@ async function criarPedido(pedidoData) {
   try {
     // 3.1 Validar se o estabelecimento existe
     const estabelecimento = await Estabelecimento.findByPk(
-      pedidoData.estabelecimentoId, // verificar tipo de dado do id
+      pedidoData.estabelecimento_id, // verificar tipo de dado do id
       { transaction },
     );
     if (!estabelecimento) {
@@ -88,17 +88,17 @@ async function criarPedido(pedidoData) {
 
     for (const item of itens) {
       // verificar tipo de dado do id
-      const produto = await Produto.findByPk(item.produtoId, { transaction });
+      const produto = await Produto.findByPk(item.produto_id, { transaction });
 
       if (!produto) {
-        throw new Error(`Produto com ID ${item.produtoId} não encontrado`);
+        throw new Error(`Produto com ID ${item.produto_id} não encontrado`);
       }
       if (!produto.ativo) {
-        throw new Error(`Produto com ID ${item.produtoId} não está ativo`);
+        throw new Error(`Produto com ID ${item.produto_id} não está ativo`);
       }
       if (produto.estoque < item.quantidade) {
         throw new Error(
-          `Produto com ID ${item.produtoId} não tem estoque suficiente`,
+          `Produto com ID ${item.produto_id} não tem estoque suficiente`,
         );
       }
 
@@ -108,14 +108,14 @@ async function criarPedido(pedidoData) {
     // 4. Obter os preços reais e calcular o total
     let total = 0;
     for (const item of itens) {
-      const produto = produtosValidos.find((p) => p.id === item.produtoId);
-      total += produto.preco * item.quantidade; // Verificar possiveis imprecisoes
+      const produto = produtosValidos.find((p) => p.id === item.produto_id);
+      total += Number(produto.preco) * item.quantidade; // Verificar possiveis imprecisoes
     }
 
     // 5. Criar o pedido
     const novoPedido = await Pedido.create(
       {
-        estabelecimentoId: pedidoData.estabelecimentoId,
+        estabelecimento_id: pedidoData.estabelecimento_id,
         total: total,
         status: "PENDENTE",
       },
@@ -124,11 +124,14 @@ async function criarPedido(pedidoData) {
 
     // 6. Criar os itens associados ao pedido
     for (const item of itens) {
+      const produto = produtosValidos.find((p) => p.id === item.produto_id);
+
       await ItemPedido.create(
         {
-          pedidoId: novoPedido.id,
-          produtoId: item.produtoId,
+          pedido_id: novoPedido.id,
+          produto_id: item.produto_id,
           quantidade: item.quantidade,
+          preco_unitario: produto.preco,
         },
         { transaction },
       );
@@ -136,13 +139,25 @@ async function criarPedido(pedidoData) {
 
     // 7. Atualizar o estoque
     for (const item of itens) {
-      const produto = produtosValidos.find((p) => p.id === item.produtoId);
+      const produto = produtosValidos.find((p) => p.id === item.produto_id);
       await produto.decrement("estoque", { by: item.quantidade, transaction });
     }
 
     // 8. Confirmar a transação
     await transaction.commit();
-    return novoPedido;
+
+    return {
+      ...novoPedido.toJSON(),
+      itens: itens.map((item) => {
+        const produto = produtosValidos.find((p) => p.id === item.produto_id);
+
+        return {
+          produto_id: item.produto_id,
+          quantidade: item.quantidade,
+          preco_unitario: produto.preco,
+        };
+      }),
+    };
   } catch (error) {
     await transaction.rollback();
     throw error;

@@ -1,4 +1,9 @@
 import Pedidos from './pedidos.model.js';
+import db from '../../config/db.js';
+import Produto from '../produtos/produtos.model.js';
+import Estabelecimento from '../estabelecimentos/estabelecimentos.model.js';
+import ItensPedido from './itens-pedido.model.js';
+import { criarPedido as criarPedidoService } from './pedidos.service.js';
 
 
 async function listarPedidos(req, res, next) {
@@ -43,17 +48,20 @@ async function buscarPedido(req, res, next) {
 
 async function criarPedido(req, res, next) {
   try {
-    const { estabelecimento_id, cliente_id, itens } = req.body;
+    const { estabelecimento_id, itens } = req.body;
 
-    if (!estabelecimento_id || !cliente_id || !itens || !Array.isArray(itens) || itens.length === 0) {
+    if (!estabelecimento_id || !itens || !Array.isArray(itens) || itens.length === 0) {
       return res.status(400).json({
         erro: 'Dados do pedido inválidos.'
       });
     }
-    /* criacao de novoPedido sera feita com regras de negocio, 
-    como calculo de preco total, validacao de estoque, etc.*/
+    const pedido = await criarPedidoService({ estabelecimento_id, itens });
+
+    return res.status(201).json(pedido);
+
 
   } catch (erro) {
+    console.error('Erro ao criar pedido:', erro);
     next(erro);
   }
 }

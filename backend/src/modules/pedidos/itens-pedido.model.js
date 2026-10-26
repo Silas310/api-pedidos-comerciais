@@ -35,3 +35,5 @@ const ItensPedido = db.define("ItensPedido", {
   tableName: "itens_pedido",
   timestamps: false,
 });
+
+export default ItensPedido;
