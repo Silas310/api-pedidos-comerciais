@@ -2,8 +2,8 @@ import 'dotenv/config';
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
-import app from '../src/app.js';
-import db from '../src/config/db.js';
+import app from '../../../src/app.js';
+import db from '../../../src/config/db.js';
 
 
 describe('Produtos', () => {
