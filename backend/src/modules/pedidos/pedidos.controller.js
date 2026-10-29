@@ -1,8 +1,5 @@
+
 import Pedidos from './pedidos.model.js';
-import db from '../../config/db.js';
-import Produto from '../produtos/produtos.model.js';
-import Estabelecimento from '../estabelecimentos/estabelecimentos.model.js';
-import ItensPedido from './itens-pedido.model.js';
 import { criarPedido as criarPedidoService } from './pedidos.service.js';
 
 
@@ -50,16 +47,22 @@ async function criarPedido(req, res, next) {
   try {
     const { estabelecimento_id, itens } = req.body;
 
-    if (!estabelecimento_id || !itens || !Array.isArray(itens) || itens.length === 0) {
+    if (
+      !estabelecimento_id ||
+      !Array.isArray(itens) ||
+      itens.length === 0
+    ) {
       return res.status(400).json({
-        erro: 'Dados do pedido inválidos.'
+        erro: 'Dados do pedido inválidos.',
       });
     }
-    const pedido = await criarPedidoService({ estabelecimento_id, itens });
+
+    const pedido = await criarPedidoService({
+      estabelecimento_id,
+      itens,
+    });
 
     return res.status(201).json(pedido);
-
-
   } catch (erro) {
     console.error('Erro ao criar pedido:', erro);
     next(erro);
@@ -67,23 +70,15 @@ async function criarPedido(req, res, next) {
 }
 
 async function atualizarStatus(req, res, next) {
-  try {
-    return res.status(501).json({
-      erro: 'Atualização de status ainda não implementada.'
-    });
-  } catch (erro) {
-    next(erro);
-  }
+  return res.status(501).json({
+    erro: 'Atualização de status ainda não implementada.'
+  });
 }
 
 async function excluirPedido(req, res, next) {
-  try {
-    return res.status(405).json({
-      erro: 'Pedidos não podem ser excluídos por esta operação.'
-    });
-  } catch (erro) {
-    next(erro);
-  }
+  return res.status(405).json({
+    erro: 'Pedidos não podem ser excluídos por esta operação.'
+  });
 }
 
 export {
