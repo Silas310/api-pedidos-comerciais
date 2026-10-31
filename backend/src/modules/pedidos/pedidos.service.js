@@ -4,8 +4,9 @@ import Pedido from './pedidos.model.js';
 import ItemPedido from './itens-pedido.model.js';
 import Produto from '../produtos/produtos.model.js';
 import Estabelecimento from '../estabelecimentos/estabelecimentos.model.js';
-
-
+import ValidationError from '../../errors/ValidationError.js';
+import NotFoundError from '../../errors/NotFoundError.js';
+import BusinessRuleError from '../../errors/BusinessRuleError.js';
 
 async function validarDadosPedido(pedidoData) {
   if (
@@ -14,7 +15,7 @@ async function validarDadosPedido(pedidoData) {
     !Array.isArray(pedidoData.itens) ||
     pedidoData.itens.length === 0
   ) {
-    throw new Error("Dados do pedido inválidos");
+    throw new ValidationError("Dados do pedido inválidos");
   }
   return true;
 }
@@ -29,7 +30,7 @@ async function validarItensPedido(itens) {
       !Number.isInteger(item.quantidade) ||
       item.quantidade <= 0
     ) {
-      throw new Error("Produto ou quantidade inválidos");
+      throw new ValidationError("Itens do pedido inválidos");
     }
   }
   return true;
@@ -43,7 +44,7 @@ async function validarEstabelecimento(estabelecimento_id, transaction) {
   );
 
   if (!estabelecimentoValido) {
-    throw new Error('Estabelecimento não encontrado');
+    throw new NotFoundError("Estabelecimento não encontrado");
   }
 }
 
@@ -67,17 +68,16 @@ function agruparItens(itens) {
 }
 
 
-
 async function validarProduto(itens, transaction) {
   const produtosValidos = [];
   for (const item of itens) {
     const produto = await Produto.findByPk(item.produto_id, { transaction });
     if (!produto) {
-      throw new Error("Produto não encontrado");
+      throw new NotFoundError("Produto não encontrado");
     } else if (!produto.ativo) {
-      throw new Error("Produto não está ativo");
+      throw new BusinessRuleError("Produto não está ativo");
     } else if (produto.estoque < item.quantidade) {
-      throw new Error(`Produto com ID ${item.produto_id} não tem estoque suficiente`);
+      throw new BusinessRuleError(`Produto com ID ${item.produto_id} não tem estoque suficiente`);
     }
     produtosValidos.push(produto);
   }

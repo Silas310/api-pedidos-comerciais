@@ -1,14 +1,16 @@
+import AppError from './AppError';
 
 
 function errorMiddleware(error, req, res, next) {
-  console.error("Erro na API:", error.message);
+  console.error(error);
 
-  // Por enquanto, erros lançados pelo serviço retornam 400.
-  // Depois podemos diferenciar validações, recursos inexistentes
-  // e erros internos com códigos específicos.
-  return res.status(400).json({
-    error: error.message,
+  if(error instanceof AppError) {
+    return res.status(error.statusCode).json({
+      error: error.message,
+    });
+  }
+
+  return res.status(500).json({
+    error: 'Erro interno do servidor',
   });
 }
-
-export default errorMiddleware;

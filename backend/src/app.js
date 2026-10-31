@@ -13,6 +13,7 @@ app.use(express.json());
 app.use('/estabelecimentos', estabelecimentoRotas);
 app.use('/produtos', produtoRotas);
 app.use('/pedidos', pedidoRotas)
+
 app.use(errorMiddleware);
 
 
