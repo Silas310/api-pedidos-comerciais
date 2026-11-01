@@ -1,4 +1,6 @@
 import Produto from './produtos.model.js'
+import NotFoundError from '../../errors/NotFoundError.js';
+
 
 async function listarProdutos(req, res, next) {
   try {
@@ -10,13 +12,14 @@ async function listarProdutos(req, res, next) {
   }
 }
 
+
 async function buscarProduto(req, res, next) {
   try {
     const { id } = req.params;
     const produto = await Produto.findByPk(id);
 
     if(!produto) {
-      return res.status(404).json({ message: 'Produto não encontrado' })
+      throw new NotFoundError('Produto não encontrado');
     }
 
     return res.status(200).json(produto);
@@ -25,6 +28,7 @@ async function buscarProduto(req, res, next) {
     next(error)
   }
 }
+
 
 async function criarProduto(req, res, next) {
   try {
@@ -42,6 +46,7 @@ async function criarProduto(req, res, next) {
   }
 }
 
+
 async function reatribuirProduto(req, res, next) {
   try {
     const { id } = req.params;
@@ -51,7 +56,7 @@ async function reatribuirProduto(req, res, next) {
     const produto = await Produto.findByPk(id);
 
     if(!produto) {
-      return res.status(404).json({ message: 'Produto não encontrado' });
+      throw new NotFoundError('Produto não encontrado');
     }
 
     const novoProduto = await produto.update({ 
@@ -68,6 +73,7 @@ async function reatribuirProduto(req, res, next) {
 
 }
 
+
 async function atualizarProduto(req, res, next) {
   try {
     const { id } = req.params;
@@ -75,7 +81,7 @@ async function atualizarProduto(req, res, next) {
     const produto = await Produto.findByPk(id);
 
     if(!produto) {
-      return res.status(404).json({ message: 'Produto não encontrado' });
+      throw new NotFoundError('Produto não encontrado');
     }
 
     const produtoAtualizado = await produto.update({
@@ -91,13 +97,14 @@ async function atualizarProduto(req, res, next) {
   }
 }
 
+
 async function excluirProduto(req, res, next) {
   try {
     const { id } = req.params;
     const produto = await Produto.findByPk(id);
 
     if(!produto) {
-      return res.status(404).json({ message: 'Produto não encontrado' });
+      throw new NotFoundError('Produto não encontrado');
     }
 
     await produto.destroy();

@@ -1,4 +1,3 @@
-
 import db from '../../config/db.js';
 import Pedido from './pedidos.model.js';
 import ItemPedido from './itens-pedido.model.js';
@@ -7,6 +6,7 @@ import Estabelecimento from '../estabelecimentos/estabelecimentos.model.js';
 import ValidationError from '../../errors/ValidationError.js';
 import NotFoundError from '../../errors/NotFoundError.js';
 import BusinessRuleError from '../../errors/BusinessRuleError.js';
+
 
 async function validarDadosPedido(pedidoData) {
   if (
@@ -122,7 +122,7 @@ async function criarItensPedido(
   for (const item of itensAgrupados) {
     const produto = produtosValidos.find((p) => p.id === item.produto_id);
     if (!produto) {
-      throw new Error("Produto não encontrado");
+      throw new NotFoundError("Produto não encontrado");
     }
 
     await ItemPedido.create(
@@ -150,7 +150,7 @@ async function atualizarEstoque(
     );
 
     if (!produto) {
-      throw new Error("Produto não encontrado");
+      throw new NotFoundError("Produto não encontrado");
     }
 
     await produto.decrement("estoque", {
@@ -214,13 +214,16 @@ async function criarPedido(pedidoData) {
   }
 }
 
+
 async function atualizarStatus(id, novoStatus) {
   // TODO: implementar atualização do status
 }
 
+
 async function cancelarPedido(id) {
   // TODO: implementar cancelamento do pedido
 }
+
 
 export {
   criarPedido,

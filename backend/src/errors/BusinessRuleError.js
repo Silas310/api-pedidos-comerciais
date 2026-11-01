@@ -3,7 +3,7 @@ import AppError from './AppError.js';
 
 class BusinessRuleError extends AppError {
   constructor(message) {
-    super(message, 400);
+    super(message, 422);
   }
 }
 

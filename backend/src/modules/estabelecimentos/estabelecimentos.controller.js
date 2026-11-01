@@ -1,5 +1,5 @@
 import Estabelecimento from './estabelecimentos.model.js';
-
+import NotFoundError from '../../errors/NotFoundError.js';
 
 async function listarEstabelecimentos(req, res, next) {
   try {
@@ -17,7 +17,7 @@ async function buscarEstabelecimento(req, res, next) {
     const estabelecimento = await Estabelecimento.findByPk(id);
 
     if (!estabelecimento) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+      throw new NotFoundError('Estabelecimento não encontrado');
     }
 
     return res.status(200).json(estabelecimento);
@@ -50,7 +50,7 @@ async function reatribuirEstabelecimento(req, res, next) {
     const estabelecimento = await Estabelecimento.findByPk(id);
 
     if (!estabelecimento) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+      throw new NotFoundError('Estabelecimento não encontrado');
     }
 
     const estabelecimentoAtualizado = await estabelecimento.update({ 
@@ -73,7 +73,7 @@ async function atualizarEstabelecimento(req, res, next) {
     const estabelecimento = await Estabelecimento.findByPk(id);
 
     if (!estabelecimento) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+      throw new NotFoundError('Estabelecimento não encontrado');
     }
 
     const estabelecimentoAtualizado = await estabelecimento.update({ nome, endereco, telefone });
@@ -90,7 +90,7 @@ async function apagarEstabelecimento(req, res, next) {
     const estabelecimento = await Estabelecimento.findByPk(id);
 
      if (!estabelecimento) {
-      return res.status(404).json({ message: 'Estabelecimento não encontrado' });
+      throw new NotFoundError('Estabelecimento não encontrado');
     }
 
     await estabelecimento.destroy();

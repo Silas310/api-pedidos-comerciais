@@ -1,4 +1,4 @@
-import AppError from './AppError';
+import AppError from '../errors/AppError.js';
 
 
 function errorMiddleware(error, req, res, next) {
@@ -14,3 +14,5 @@ function errorMiddleware(error, req, res, next) {
     error: 'Erro interno do servidor',
   });
 }
+
+export default errorMiddleware;
