@@ -73,12 +73,8 @@ describe('Pedidos', () => {
       ]
     });
 
-    console.log('Status:', response.status);
-    console.log('Resposta:', response.body);
 
-    console.log('Verificando status:');
     assert.strictEqual(response.status, 201);
-    console.log('Verificando id:');
     assert.ok(response.body.id);
     assert.strictEqual(response.body.estabelecimento_id, estabelecimentoId);
     assert.strictEqual(response.body.itens.length, 1);

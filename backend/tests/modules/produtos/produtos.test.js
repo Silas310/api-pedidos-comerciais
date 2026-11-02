@@ -20,6 +20,7 @@ describe('Produtos', () => {
     await db.query("TRUNCATE TABLE produtos RESTART IDENTITY CASCADE");
 
     const resposta = await request(app).post("/produtos").send(dadosProduto);
+    assert.strictEqual(resposta.status, 201);
 
     produto = resposta.body;
   });
