@@ -19,11 +19,17 @@ const Estabelecimento = db.define('Estabelecimento', {
   },
   nome: {
     type: DataTypes.STRING(150),
-    allowNull: false
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
   },
   endereco: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      notEmpty: true
+    }
   },
   telefone: {
     type: DataTypes.STRING(20),

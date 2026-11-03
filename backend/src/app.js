@@ -2,7 +2,7 @@ import express from 'express';
 import estabelecimentoRotas from './modules/estabelecimentos/estabelecimentos.routes.js'
 import produtoRotas from './modules/produtos/produtos.routes.js'
 import pedidoRotas from './modules/pedidos/pedidos.routes.js'
-import errorMiddleware from './middlewares/errorHandler.js'
+import errorMiddleware from './middlewares/errorMiddleware.js'
 
 
 const app = express();

@@ -26,10 +26,18 @@ const ItensPedido = db.define("ItensPedido", {
   quantidade: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    validate: {
+      isInt: true,
+      min: 1,
+    }
   },
   preco_unitario: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
+    validate: {
+      isDecimal: true,
+      min: 0,
+    }
   },
 }, {
   tableName: "itens_pedido",

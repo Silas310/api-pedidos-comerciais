@@ -10,20 +10,36 @@ const Produto = db.define('Produto', {
   },
   nome: {
     type: DataTypes.STRING(150),
-    allowNull: false
+    allowNull: false,
+    validation: {
+      notEmpty: true,
+      len: [1, 150]
+    }
   },
   descricao: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
+    validate: {
+      notEmpty: true,
+      len: [0, 500] // Limite de 500 caracteres
+    }
   },
   preco: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
+    allowNull: false,
+    validate: {
+      isDecimal: true,
+      min: 0
+    }
   },
   estoque: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: {
+      isInt: true,
+      min: 0
+    }
   },
   ativo: {
     type: DataTypes.BOOLEAN,

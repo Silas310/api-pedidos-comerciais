@@ -19,12 +19,18 @@ const Pedido = db.define('Pedido', {
   status: {
     type: DataTypes.STRING(20),
     allowNull: false,
-    defaultValue: 'pendente'
+    defaultValue: 'PENDENTE',
+    validate: {
+      isIn: ['PENDENTE', 'CONFIRMADO', 'CANCELADO', 'CONCLUIDO']
+    }
   },
   total: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    defaultValue: 0
+    defaultValue: 0,
+    validate: {
+      min: 0
+    }
   },
   criado_em: {
     type: DataTypes.DATE,
