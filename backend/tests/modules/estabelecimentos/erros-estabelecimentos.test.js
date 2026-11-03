@@ -21,7 +21,7 @@ describe('Erros Estabelecimentos', () => {
     const response = await request(app)
       .post('/estabelecimentos')
       .send({ nome: '', endereco: '', telefone: '' });
-    assert.strictEqual(response.status, 400);
+    assert.strictEqual(response.status, 400); // precisou altera model
     assert.strictEqual(response.body.error, 'Dados inválidos');
   });
 

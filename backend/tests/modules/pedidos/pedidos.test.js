@@ -40,22 +40,26 @@ describe('Pedidos', () => {
       RESTART IDENTITY CASCADE;
     `);
 
-    await request(app).post('/estabelecimentos').send({
+    const estabelecimentoResponse = await request(app).post('/estabelecimentos').send({
       nome: 'Restaurante Teste',
       endereco: 'Rua Teste, 123',
       telefone: '123456789',
     });
 
+    assert.strictEqual(estabelecimentoResponse.status, 201, JSON.stringify(estabelecimentoResponse.body));
+
     estabelecimentoId = (await db.query(`
       SELECT id FROM estabelecimentos WHERE nome = 'Restaurante Teste'  
     `, { type: QueryTypes.SELECT }))[0].id;
 
-    await request(app).post('/produtos').send({
+    const produtoResponse = await request(app).post('/produtos').send({
       nome: 'Produto Teste',
       descricao: 'Descrição do Produto Teste',
       preco: 10.00,
       estoque: 10,
     });
+
+    assert.strictEqual(produtoResponse.status, 201, JSON.stringify(produtoResponse.body));
 
     produtoId = (await db.query(`
       SELECT id FROM produtos WHERE nome = 'Produto Teste'  
@@ -73,13 +77,13 @@ describe('Pedidos', () => {
       ]
     });
 
-
     assert.strictEqual(response.status, 201);
     assert.ok(response.body.id);
     assert.strictEqual(response.body.estabelecimento_id, estabelecimentoId);
     assert.strictEqual(response.body.itens.length, 1);
     assert.strictEqual(response.body.itens[0].produto_id, produtoId);
     assert.strictEqual(response.body.itens[0].quantidade, 2);
+    assert.strictEqual(response.body.status, 'PENDENTE');
     assert.strictEqual(Number(response.body.total), 20.00);
 
     const resultado = await db.query(

@@ -1,5 +1,17 @@
 import Pedidos from './pedidos.model.js';
 import { criarPedido as criarPedidoService } from './pedidos.service.js';
+import NotFoundError  from '../../errors/NotFoundError.js';
+import ValidationError from '../../errors/ValidationError.js';
+
+
+function validarUUID(id, mensagem) {
+  const uuidValido =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (typeof id !== 'string' || !uuidValido.test(id)) {
+    throw new ValidationError(mensagem);
+  }
+}
 
 
 async function listarPedidos(req, res, next) {
@@ -27,6 +39,8 @@ async function listarPedidos(req, res, next) {
 async function buscarPedido(req, res, next) {
   try {
     const { id } = req.params;
+
+    validarUUID(id, 'ID do pedido inválido');
 
     const pedido = await Pedidos.findByPk(id);
 

@@ -1,6 +1,7 @@
 import Estabelecimento from './estabelecimentos.model.js';
 import NotFoundError from '../../errors/NotFoundError.js';
 
+
 async function listarEstabelecimentos(req, res, next) {
   try {
     const estabelecimentos = await Estabelecimento.findAll();

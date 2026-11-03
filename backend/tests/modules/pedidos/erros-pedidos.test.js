@@ -10,25 +10,28 @@ import { QueryTypes } from 'sequelize';
 describe('Erros Pedidos', () => {
   let estabelecimentoId;
   let produtoId;
+
+  const uuidInexistente = '00000000-0000-0000-0000-000000000000';
+
   beforeEach(async () => {
-    // 1. Limpar o banco de dados antes de cada teste
+    // Limpar o banco de dados antes de cada teste
     await db.query('DELETE FROM itens_pedido', { type: QueryTypes.DELETE });
     await db.query('DELETE FROM pedidos', { type: QueryTypes.DELETE });
     await db.query('DELETE FROM produtos', { type: QueryTypes.DELETE });
     await db.query('DELETE FROM estabelecimentos', { type: QueryTypes.DELETE });
 
-    // criar estabelecimento e produto válidos para os testes
+    // Criar estabelecimento e produto válidos para os testes
     const dadosEstabelecimento = {
       nome: 'Estabelecimento Teste',
       endereco: 'Rua Teste, 123',
       telefone: '123456789',
     };
 
-     const dadosProduto = {
-      nome: "Produto Teste",
-      descricao: "Descrição do produto teste",
+    const dadosProduto = {
+      nome: 'Produto Teste',
+      descricao: 'Descrição do produto teste',
       preco: 10.0,
-      quantidade_estoque: 100,
+      estoque: 100,
       ativo: true,
     };
 
@@ -36,42 +39,56 @@ describe('Erros Pedidos', () => {
       .post('/estabelecimentos')
       .send(dadosEstabelecimento);
 
+    assert.strictEqual(
+      estabelecimentoResponse.status,
+      201,
+      JSON.stringify(estabelecimentoResponse.body)
+    );
+
     estabelecimentoId = estabelecimentoResponse.body.id;
 
     const produtoResponse = await request(app)
       .post('/produtos')
-      .send({ ...dadosProduto, estabelecimento_id: estabelecimentoId });
-    
-    produtoId = produtoResponse.body.id;
-  })
+      .send(dadosProduto);
 
+    assert.strictEqual(
+      produtoResponse.status,
+      201,
+      JSON.stringify(produtoResponse.body)
+    );
+
+    produtoId = produtoResponse.body.id;
+  });
 
   // 400 — Dados inválidos
   it('cria pedido com dados inválidos', async () => {
     const response = await request(app)
       .post('/pedidos')
-      .send({ estabelecimento_id: '', itens: [] });
+      .send({
+        estabelecimento_id: 'invalid-id',
+        itens: [{ produto_id: 'invalid-id', quantidade: -1 }]
+      });
+
     assert.strictEqual(response.status, 400);
-    assert.strictEqual(response.body.error, 'Dados inválidos');
+    assert.strictEqual(response.body.error, 'Itens do pedido inválidos');
   });
-  
+
   it('cria pedido com ID de produto inválido', async () => {
     const response = await request(app)
       .post('/pedidos')
-      .send(
-        {
-          estabelecimento_id: estabelecimentoId,
-          itens: [{ produto_id: 'invalid-id', quantidade: 1 }]
-        }
-      );
+      .send({
+        estabelecimento_id: estabelecimentoId,
+        itens: [{ produto_id: 'invalid-id', quantidade: 1 }]
+      });
+
     assert.strictEqual(response.status, 400);
     assert.strictEqual(response.body.error, 'ID do produto inválido');
-
   });
 
   it('id malformado', async () => {
     const response = await request(app)
       .get('/pedidos/invalid-id');
+
     assert.strictEqual(response.status, 400);
     assert.strictEqual(response.body.error, 'ID do pedido inválido');
   });
@@ -79,31 +96,20 @@ describe('Erros Pedidos', () => {
   // 404 — Recursos inexistentes
   it('busca pedido inexistente', async () => {
     const response = await request(app)
-      .get('/pedidos/1');
+      .get(`/pedidos/${uuidInexistente}`);
+
     assert.strictEqual(response.status, 404);
     assert.strictEqual(response.body.error, 'Pedido não encontrado');
   });
 
-  // esperando implementação
-  // it('atualiza pedido inexistente', async () => {
-  //   const response = await request(app)
-  //     .put('/pedidos/1')
-  //     .send({ quantidade: 2 });
-  //   assert.strictEqual(response.status, 404);
-  //   assert.strictEqual(response.body.error, 'Pedido não encontrado');
-  // });
-
-  // it('exclui pedido inexistente', async () => {
-  //   const response = await request(app)
-  //     .delete('/pedidos/1');
-  //   assert.strictEqual(response.status, 404);
-  //   assert.strictEqual(response.body.error, 'Pedido não encontrado');
-  // });
-
   it('cria pedido com produto inexistente', async () => {
     const response = await request(app)
       .post('/pedidos')
-      .send({ produto_id: 1, quantidade: 1 });
+      .send({
+        estabelecimento_id: estabelecimentoId,
+        itens: [{ produto_id: uuidInexistente, quantidade: 1 }]
+      });
+
     assert.strictEqual(response.status, 404);
     assert.strictEqual(response.body.error, 'Produto não encontrado');
   });
@@ -111,7 +117,11 @@ describe('Erros Pedidos', () => {
   it('cria pedido com estabelecimento inexistente', async () => {
     const response = await request(app)
       .post('/pedidos')
-      .send({ estabelecimento_id: 1, quantidade: 1 });
+      .send({
+        estabelecimento_id: uuidInexistente,
+        itens: [{ produto_id: produtoId, quantidade: 1 }]
+      });
+
     assert.strictEqual(response.status, 404);
     assert.strictEqual(response.body.error, 'Estabelecimento não encontrado');
   });
@@ -120,9 +130,13 @@ describe('Erros Pedidos', () => {
   it('não permite criar pedido com estoque insuficiente', async () => {
     const response = await request(app)
       .post('/pedidos')
-      .send({ produto_id: produtoId, quantidade: 101 });
+      .send({
+        estabelecimento_id: estabelecimentoId,
+        itens: [{ produto_id: produtoId, quantidade: 101 }]
+      });
+
     assert.strictEqual(response.status, 422);
-    assert.strictEqual(response.body.error, 'Estoque insuficiente');
+    assert.match(response.body.error, /não tem estoque suficiente/);
   });
 
   it('não permite criar pedido com produto inativo', async () => {
@@ -134,8 +148,12 @@ describe('Erros Pedidos', () => {
 
     const response = await request(app)
       .post('/pedidos')
-      .send({ produto_id: produtoId, quantidade: 1 });
+      .send({
+        estabelecimento_id: estabelecimentoId,
+        itens: [{ produto_id: produtoId, quantidade: 1 }]
+      });
+
     assert.strictEqual(response.status, 422);
-    assert.strictEqual(response.body.error, 'Produto está inativo');
+    assert.strictEqual(response.body.error, 'Produto não está ativo');
   });
 });

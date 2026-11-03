@@ -8,6 +8,16 @@ import NotFoundError from '../../errors/NotFoundError.js';
 import BusinessRuleError from '../../errors/BusinessRuleError.js';
 
 
+function validarUUID(id, mensagem) {
+  const uuidValido =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (typeof id !== 'string' || !uuidValido.test(id)) {
+    throw new ValidationError(mensagem);
+  }
+}
+
+
 async function validarDadosPedido(pedidoData) {
   if (
     !pedidoData ||
@@ -38,6 +48,7 @@ async function validarItensPedido(itens) {
 
 
 async function validarEstabelecimento(estabelecimento_id, transaction) {
+  validarUUID(estabelecimento_id, "ID do estabelecimento inválido");
   const estabelecimentoValido = await Estabelecimento.findByPk(
     estabelecimento_id, // validar formato depois
     { transaction },
@@ -71,6 +82,7 @@ function agruparItens(itens) {
 async function validarProduto(itens, transaction) {
   const produtosValidos = [];
   for (const item of itens) {
+    validarUUID(item.produto_id, "ID do produto inválido");
     const produto = await Produto.findByPk(item.produto_id, { transaction });
     if (!produto) {
       throw new NotFoundError("Produto não encontrado");
